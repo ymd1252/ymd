@@ -54,7 +54,7 @@ button{width:100%;padding:10px;background:#0077ff;color:#fff;border:none;border-
 <!-- 引入腾讯云 SDK -->
 <script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/4.4.10/cloudbase.min.js"></script>
 <script>
-// ============== 这里换成你的腾讯云环境ID ==============
+// ============== 这里是你的腾讯云环境ID，已经填好 ==============
 const app = cloudbase.init({
   env: "ai-native-6grdjvhef17e8bab"
 });
@@ -62,17 +62,17 @@ const db = app.database();
 
 // 切换界面
 function showReg(){
-  loginBox.classList.add("hide");
-  regBox.classList.remove("hide");
+  document.getElementById("loginBox").classList.add("hide");
+  document.getElementById("regBox").classList.remove("hide");
 }
 function showLogin(){
-  regBox.classList.add("hide");
-  loginBox.classList.remove("hide");
+  document.getElementById("regBox").classList.add("hide");
+  document.getElementById("loginBox").classList.remove("hide");
 }
 function showMain(){
-  loginBox.classList.add("hide");
-  regBox.classList.add("hide");
-  mainBox.classList.remove("hide");
+  document.getElementById("loginBox").classList.add("hide");
+  document.getElementById("regBox").classList.add("hide");
+  document.getElementById("mainBox").classList.remove("hide");
 }
 
 // 注册
@@ -126,18 +126,19 @@ async function sendMsg(){
   if(!user) return alert("请先登录");
 
   const content = document.getElementById("msgContent").value.trim();
-  if(!content) return alert("请输入内容");
+  if(!content) return alert("请输入留言内容");
 
+  const time = new Date().toLocaleString();
   try {
     await db.collection("msgs").add({
       user,
       content,
-      time: new Date().toLocaleString()
+      time
     });
     document.getElementById("msgContent").value = "";
     loadMsg();
   } catch(e) {
-    alert("发送失败");
+    alert("发送失败：" + e.message);
   }
 }
 
@@ -145,7 +146,7 @@ async function sendMsg(){
 async function loadMsg(){
   const listEl = document.getElementById("msgList");
   try {
-    const res = await db.collection("msgs").orderBy("createTime", "desc").get();
+    const res = await db.collection("msgs").orderBy("time", "desc").get();
     let html = "";
     for(const m of res.data){
       html += `
@@ -161,13 +162,13 @@ async function loadMsg(){
   }
 }
 
-// 自动登录判断
+// 页面加载判断登录状态
 window.onload = function(){
   const user = localStorage.getItem("login_user");
-  if(user){
+  if(user) {
+    document.getElementById("loginBox").classList.add("hide");
+    document.getElementById("mainBox").classList.remove("hide");
     document.getElementById("nowuser").innerText = user;
-    mainBox.classList.remove("hide");
-    loginBox.classList.add("hide");
     loadMsg();
   }
 }
