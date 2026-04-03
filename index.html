@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>我的留言板</title>
+    <script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.10.3/cloudbase.full.js"></script>
+</head>
+<body>
+    <h1>欢迎来到我的留言板</h1>
+    <input type="text" id="name" placeholder="你的名字">
+    <input type="text" id="msg" placeholder="想说的话">
+    <button onclick="submitMsg()">提交留言</button>
+    <div id="msgList"></div>
+
+    <script>
+        const app = cloudbase.init({ env: "ai-native-6grdjvhf17e8bab" });
+        const db = app.database();
+
+        function submitMsg() {
+            let name = document.getElementById("name").value;
+            let msg = document.getElementById("msg").value;
+            db.collection("messages").add({ name, msg })
+            .then(() => { alert("提交成功"); getMsg(); })
+        }
+
+        function getMsg() {
+            db.collection("messages").get().then(res => {
+                let list = res.data.map(item => `${item.name}: ${item.msg}`).join("<br>");
+                document.getElementById("msgList").innerHTML = list;
+            })
+        }
+        getMsg();
+    </script>
+</body>
+</html>
