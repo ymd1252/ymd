@@ -18,6 +18,8 @@ button{width:100%;padding:10px;background:#0077ff;color:#fff;border:none;border-
 .msg .time{font-size:12px;color:#999;margin-left:8px}
 .msg .content{margin-top:4px}
 </style>
+<!-- 把SDK移到head里，确保优先加载 -->
+<script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/4.4.10/cloudbase.min.js"></script>
 </head>
 <body>
 
@@ -51,14 +53,25 @@ button{width:100%;padding:10px;background:#0077ff;color:#fff;border:none;border-
 <div id="msgList"></div>
 </div>
 
-<!-- 👇 关键：必须先引入腾讯云 SDK，再写初始化代码！ -->
-<script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/4.4.10/cloudbase.min.js"></script>
 <script>
-// ============== 腾讯云环境ID（已填好，无需修改） ==============
-const app = cloudbase.init({
-  env: "ai-native-6grdjvhef17e8bab"
-});
-const db = app.database();
+// 等待SDK加载完成后再初始化
+let db;
+window.onload = function() {
+  // 初始化腾讯云
+  const app = cloudbase.init({
+    env: "ai-native-6grdjvhef17e8bab"
+  });
+  db = app.database();
+
+  // 页面加载自动判断登录
+  const user = localStorage.getItem("login_user");
+  if(user) {
+    document.getElementById("loginBox").classList.add("hide");
+    document.getElementById("mainBox").classList.remove("hide");
+    document.getElementById("nowuser").innerText = user;
+    loadMsg();
+  }
+}
 
 // 切换界面
 function showReg(){
@@ -77,6 +90,7 @@ function showMain(){
 
 // 注册
 async function reg(){
+  if(!db) return alert("系统初始化中，请稍等...");
   const user = document.getElementById("reg_user").value.trim();
   const pwd  = document.getElementById("reg_pwd").value.trim();
   if(!user || !pwd) return alert("请输入用户名和密码");
@@ -95,6 +109,7 @@ async function reg(){
 
 // 登录
 async function login(){
+  if(!db) return alert("系统初始化中，请稍等...");
   const user = document.getElementById("login_user").value.trim();
   const pwd  = document.getElementById("login_pwd").value.trim();
   if(!user || !pwd) return alert("请输入用户名和密码");
@@ -120,6 +135,7 @@ function logout(){
 
 // 发送留言
 async function sendMsg(){
+  if(!db) return alert("系统初始化中，请稍等...");
   const user = localStorage.getItem("login_user");
   if(!user) return alert("请先登录");
 
@@ -138,6 +154,7 @@ async function sendMsg(){
 
 // 加载留言
 async function loadMsg(){
+  if(!db) return;
   const listEl = document.getElementById("msgList");
   try {
     const res = await db.collection("msgs").orderBy("time", "desc").get();
@@ -153,17 +170,6 @@ async function loadMsg(){
     listEl.innerHTML = html;
   } catch(e) {
     listEl.innerHTML = "暂无留言";
-  }
-}
-
-// 页面加载自动判断登录
-window.onload = function(){
-  const user = localStorage.getItem("login_user");
-  if(user) {
-    document.getElementById("loginBox").classList.add("hide");
-    document.getElementById("mainBox").classList.remove("hide");
-    document.getElementById("nowuser").innerText = user;
-    loadMsg();
   }
 }
 </script>
