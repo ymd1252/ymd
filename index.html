@@ -1,34 +1,216 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>我的留言板</title>
-    <script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.10.3/cloudbase.full.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>留言板（账号存在GitHub）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f6f8fa;max-width:500px;margin:30px auto;padding:0 20px}
+.box{background:#fff;border-radius:8px;padding:20px;box-shadow:0 2px 6px rgba(0,0,0,.08);margin-bottom:15px}
+h3{margin-bottom:15px;color:#333}
+input{width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:6px}
+button{width:100%;padding:10px;background:#0077ff;color:#fff;border:none;border-radius:6px;margin-bottom:8px;cursor:pointer}
+.gray{background:#666}
+.hide{display:none}
+.msg{padding:10px 0;border-bottom:1px solid #eee}
+.msg .user{font-weight:bold;color:#0077ff}
+.msg .time{font-size:12px;color:#999;margin-left:8px}
+.msg .content{margin-top:4px}
+</style>
 </head>
 <body>
-    <h1>欢迎来到我的留言板</h1>
-    <input type="text" id="name" placeholder="你的名字">
-    <input type="text" id="msg" placeholder="想说的话">
-    <button onclick="submitMsg()">提交留言</button>
-    <div id="msgList"></div>
 
-    <script>
-        const app = cloudbase.init({ env: "ai-native-6grdjvhf17e8bab" });
-        const db = app.database();
+<!-- 登录 -->
+<div class="box" id="loginBox">
+<h3>登录</h3>
+<input type="text" id="login_user" placeholder="用户名">
+<input type="password" id="login_pwd" placeholder="密码">
+<button onclick="login()">登录</button>
+<button class="gray" onclick="showReg()">去注册</button>
+</div>
 
-        function submitMsg() {
-            let name = document.getElementById("name").value;
-            let msg = document.getElementById("msg").value;
-            db.collection("messages").add({ name, msg })
-            .then(() => { alert("提交成功"); getMsg(); })
-        }
+<!-- 注册 -->
+<div class="box hide" id="regBox">
+<h3>注册</h3>
+<input type="text" id="reg_user" placeholder="用户名">
+<input type="password" id="reg_pwd" placeholder="密码">
+<button onclick="reg()">注册</button>
+<button class="gray" onclick="showLogin()">返回登录</button>
+</div>
 
-        function getMsg() {
-            db.collection("messages").get().then(res => {
-                let list = res.data.map(item => `${item.name}: ${item.msg}`).join("<br>");
-                document.getElementById("msgList").innerHTML = list;
-            })
-        }
-        getMsg();
-    </script>
+<!-- 主界面 -->
+<div class="box hide" id="mainBox">
+<h3>留言板</h3>
+<p>欢迎：<span id="nowuser"></span></p >
+<button class="gray" onclick="logout()">退出登录</button>
+<br><br>
+<input type="text" id="msgContent" placeholder="写留言...">
+<button onclick="sendMsg()">发送留言</button>
+<br><br>
+<div id="msgList"></div>
+</div>
+
+<script>
+// ======================
+// 你的信息已全部填入
+// ======================
+const OWNER = "YMD1252";
+const REPO  = "YMD1252";
+const TOKEN = "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";
+
+// 切换注册
+function showReg(){
+  document.getElementById("loginBox").classList.add("hide");
+  document.getElementById("regBox").classList.remove("hide");
+}
+
+// 切换登录
+function showLogin(){
+  document.getElementById("regBox").classList.add("hide");
+  document.getElementById("loginBox").classList.remove("hide");
+}
+
+// 注册：保存账号到 GitHub
+async function reg(){
+  const user = document.getElementById("reg_user").value.trim();
+  const pwd  = document.getElementById("reg_pwd").value.trim();
+  if(!user || !pwd) return alert("请输入用户名和密码");
+
+  const path = `users/${user}.json`;
+  const url  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": "token " + TOKEN,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: `注册用户 ${user}`,
+        content: btoa(JSON.stringify({ user, pwd }))
+      })
+    });
+
+    if(res.ok) {
+      alert("注册成功！请登录");
+      showLogin();
+    } else {
+      alert("注册失败，请检查仓库权限");
+    }
+  } catch(e) {
+    alert("网络错误");
+  }
+}
+
+// 登录：从 GitHub 验证账号
+async function login(){
+  const user = document.getElementById("login_user").value.trim();
+  const pwd  = document.getElementById("login_pwd").value.trim();
+  if(!user || !pwd) return alert("请输入用户名和密码");
+
+  const path = `users/${user}.json`;
+  const url  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    const account = JSON.parse(atob(json.content));
+
+    if(account.pwd === pwd) {
+      localStorage.setItem("login_user", user);
+      document.getElementById("loginBox").classList.add("hide");
+      document.getElementById("mainBox").classList.remove("hide");
+      document.getElementById("nowuser").innerText = user;
+      loadMsg();
+    } else {
+      alert("密码错误");
+    }
+  } catch(e) {
+    alert("用户名不存在");
+  }
+}
+
+// 退出登录
+function logout(){
+  localStorage.removeItem("login_user");
+  location.reload();
+}
+
+// 发送留言到 GitHub
+async function sendMsg(){
+  const user = localStorage.getItem("login_user");
+  if(!user) return alert("请先登录");
+
+  const content = document.getElementById("msgContent").value.trim();
+  if(!content) return alert("请输入留言内容");
+
+  const time = new Date().toLocaleString();
+  const path = `msgs/${Date.now()}.json`;
+  const url  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": "token " + TOKEN,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: `留言来自 ${user}`,
+        content: btoa(JSON.stringify({ user, content, time }))
+      })
+    });
+
+    if(res.ok) {
+      document.getElementById("msgContent").value = "";
+      loadMsg();
+    }
+  } catch(e) {
+    alert("发送失败");
+  }
+}
+
+// 加载留言
+async function loadMsg(){
+  const listEl = document.getElementById("msgList");
+  try {
+    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/msgs`);
+    if(!res.ok) {
+      listEl.innerHTML = "暂无留言";
+      return;
+    }
+    const list = await res.json();
+    let html = "";
+
+    for(const item of list) {
+      const msgRes = await fetch(item.download_url);
+      const msg = await msgRes.json();
+      html += `
+      <div class="msg">
+        <span class="user">${msg.user}</span>
+        <span class="time">${msg.time}</span>
+        <div class="content">${msg.content}</div>
+      </div>`;
+    }
+
+    listEl.innerHTML = html;
+  } catch(e) {
+    listEl.innerHTML = "暂无留言";
+  }
+}
+
+// 页面加载判断登录状态
+window.onload = function(){
+  const user = localStorage.getItem("login_user");
+  if(user) {
+    document.getElementById("loginBox").classList.add("hide");
+    document.getElementById("mainBox").classList.remove("hide");
+    document.getElementById("nowuser").innerText = user;
+    loadMsg();
+  }
+}
+</script>
 </body>
 </html>
