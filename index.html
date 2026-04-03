@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>留言板（账号存在GitHub）</title>
+<title>留言板（腾讯云数据库）</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#f6f8fa;max-width:500px;margin:30px auto;padding:0 20px}
@@ -51,122 +51,91 @@ button{width:100%;padding:10px;background:#0077ff;color:#fff;border:none;border-
 <div id="msgList"></div>
 </div>
 
+<!-- 引入腾讯云 SDK -->
+<script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/4.4.10/cloudbase.min.js"></script>
 <script>
-// ======================
-// 你的信息已全部填入
-// ======================
-const OWNER = "YMD1252";
-const REPO  = "ymd";
-const TOKEN = "ai-native-6grdjvhef17e8bab";
+// ============== 这里换成你的腾讯云环境ID ==============
+const app = cloudbase.init({
+  env: "ai-native-6grdjvhef17e8bab"
+});
+const db = app.database();
 
-// 切换注册
+// 切换界面
 function showReg(){
-  document.getElementById("loginBox").classList.add("hide");
-  document.getElementById("regBox").classList.remove("hide");
+  loginBox.classList.add("hide");
+  regBox.classList.remove("hide");
 }
-
-// 切换登录
 function showLogin(){
-  document.getElementById("regBox").classList.add("hide");
-  document.getElementById("loginBox").classList.remove("hide");
+  regBox.classList.add("hide");
+  loginBox.classList.remove("hide");
+}
+function showMain(){
+  loginBox.classList.add("hide");
+  regBox.classList.add("hide");
+  mainBox.classList.remove("hide");
 }
 
-// 注册：保存账号到 GitHub
+// 注册
 async function reg(){
   const user = document.getElementById("reg_user").value.trim();
   const pwd  = document.getElementById("reg_pwd").value.trim();
   if(!user || !pwd) return alert("请输入用户名和密码");
 
-  const path = `users/${user}.json`;
-  const url  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
-
   try {
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Authorization": "token " + TOKEN,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `注册用户 ${user}`,
-        content: btoa(JSON.stringify({ user, pwd }))
-      })
-    });
+    // 查询是否已存在
+    const find = await db.collection("users").where({ user }).get();
+    if(find.data.length > 0) return alert("用户名已存在");
 
-    if(res.ok) {
-      alert("注册成功！请登录");
-      showLogin();
-    } else {
-      alert("注册失败，请检查仓库权限");
-    }
+    // 注册
+    await db.collection("users").add({ user, pwd });
+    alert("注册成功！请登录");
+    showLogin();
   } catch(e) {
-    alert("网络错误");
+    alert("注册失败：" + e.message);
   }
 }
 
-// 登录：从 GitHub 验证账号
+// 登录
 async function login(){
   const user = document.getElementById("login_user").value.trim();
   const pwd  = document.getElementById("login_pwd").value.trim();
   if(!user || !pwd) return alert("请输入用户名和密码");
 
-  const path = `users/${user}.json`;
-  const url  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
-
   try {
-    const res = await fetch(url);
-    const json = await res.json();
-    const account = JSON.parse(atob(json.content));
+    const res = await db.collection("users").where({ user, pwd }).get();
+    if(res.data.length === 0) return alert("账号或密码错误");
 
-    if(account.pwd === pwd) {
-      localStorage.setItem("login_user", user);
-      document.getElementById("loginBox").classList.add("hide");
-      document.getElementById("mainBox").classList.remove("hide");
-      document.getElementById("nowuser").innerText = user;
-      loadMsg();
-    } else {
-      alert("密码错误");
-    }
+    localStorage.setItem("login_user", user);
+    document.getElementById("nowuser").innerText = user;
+    showMain();
+    loadMsg();
   } catch(e) {
-    alert("用户名不存在");
+    alert("登录失败：" + e.message);
   }
 }
 
-// 退出登录
+// 退出
 function logout(){
   localStorage.removeItem("login_user");
   location.reload();
 }
 
-// 发送留言到 GitHub
+// 发送留言
 async function sendMsg(){
   const user = localStorage.getItem("login_user");
   if(!user) return alert("请先登录");
 
   const content = document.getElementById("msgContent").value.trim();
-  if(!content) return alert("请输入留言内容");
-
-  const time = new Date().toLocaleString();
-  const path = `msgs/${Date.now()}.json`;
-  const url  = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+  if(!content) return alert("请输入内容");
 
   try {
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Authorization": "token " + TOKEN,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `留言来自 ${user}`,
-        content: btoa(JSON.stringify({ user, content, time }))
-      })
+    await db.collection("msgs").add({
+      user,
+      content,
+      time: new Date().toLocaleString()
     });
-
-    if(res.ok) {
-      document.getElementById("msgContent").value = "";
-      loadMsg();
-    }
+    document.getElementById("msgContent").value = "";
+    loadMsg();
   } catch(e) {
     alert("发送失败");
   }
@@ -176,38 +145,29 @@ async function sendMsg(){
 async function loadMsg(){
   const listEl = document.getElementById("msgList");
   try {
-    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/msgs`);
-    if(!res.ok) {
-      listEl.innerHTML = "暂无留言";
-      return;
-    }
-    const list = await res.json();
+    const res = await db.collection("msgs").orderBy("createTime", "desc").get();
     let html = "";
-
-    for(const item of list) {
-      const msgRes = await fetch(item.download_url);
-      const msg = await msgRes.json();
+    for(const m of res.data){
       html += `
       <div class="msg">
-        <span class="user">${msg.user}</span>
-        <span class="time">${msg.time}</span>
-        <div class="content">${msg.content}</div>
+        <span class="user">${m.user}</span>
+        <span class="time">${m.time}</span>
+        <div class="content">${m.content}</div>
       </div>`;
     }
-
     listEl.innerHTML = html;
   } catch(e) {
     listEl.innerHTML = "暂无留言";
   }
 }
 
-// 页面加载判断登录状态
+// 自动登录判断
 window.onload = function(){
   const user = localStorage.getItem("login_user");
-  if(user) {
-    document.getElementById("loginBox").classList.add("hide");
-    document.getElementById("mainBox").classList.remove("hide");
+  if(user){
     document.getElementById("nowuser").innerText = user;
+    mainBox.classList.remove("hide");
+    loginBox.classList.add("hide");
     loadMsg();
   }
 }
