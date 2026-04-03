@@ -51,10 +51,10 @@ button{width:100%;padding:10px;background:#0077ff;color:#fff;border:none;border-
 <div id="msgList"></div>
 </div>
 
-<!-- 引入腾讯云 SDK -->
+<!-- 👇 关键：必须先引入腾讯云 SDK，再写初始化代码！ -->
 <script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/4.4.10/cloudbase.min.js"></script>
 <script>
-// ============== 这里是你的腾讯云环境ID，已经填好 ==============
+// ============== 腾讯云环境ID（已填好，无需修改） ==============
 const app = cloudbase.init({
   env: "ai-native-6grdjvhef17e8bab"
 });
@@ -82,11 +82,9 @@ async function reg(){
   if(!user || !pwd) return alert("请输入用户名和密码");
 
   try {
-    // 查询是否已存在
     const find = await db.collection("users").where({ user }).get();
     if(find.data.length > 0) return alert("用户名已存在");
 
-    // 注册
     await db.collection("users").add({ user, pwd });
     alert("注册成功！请登录");
     showLogin();
@@ -130,11 +128,7 @@ async function sendMsg(){
 
   const time = new Date().toLocaleString();
   try {
-    await db.collection("msgs").add({
-      user,
-      content,
-      time
-    });
+    await db.collection("msgs").add({ user, content, time });
     document.getElementById("msgContent").value = "";
     loadMsg();
   } catch(e) {
@@ -162,7 +156,7 @@ async function loadMsg(){
   }
 }
 
-// 页面加载判断登录状态
+// 页面加载自动判断登录
 window.onload = function(){
   const user = localStorage.getItem("login_user");
   if(user) {
