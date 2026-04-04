@@ -15,6 +15,7 @@
       background-color: #f5f5f5;
       min-height: 100vh;
     }
+    /* 微信风格顶部栏 */
     .header {
       background-color: #f7f7f7;
       border-bottom: 1px solid #e5e5e5;
@@ -31,6 +32,7 @@
       margin: 0 auto;
       padding: 15px;
     }
+    /* 登录弹窗 */
     .login-modal {
       position: fixed;
       top: 0;
@@ -85,6 +87,7 @@
     .login-btn:hover {
       background: #06ae56;
     }
+    /* 留言输入区 */
     .message-input {
       background: white;
       border-radius: 8px;
@@ -126,6 +129,7 @@
     .submit-btn:hover {
       background: #06ae56;
     }
+    /* 留言列表 */
     .message-list {
       background: white;
       border-radius: 8px;
@@ -199,6 +203,7 @@
     <button class="logout-btn" id="logoutBtn" style="display: none;">退出登录</button>
   </div>
 
+  <!-- 登录弹窗 -->
   <div class="login-modal" id="loginModal">
     <div class="login-box">
       <h3>管理员登录</h3>
@@ -215,6 +220,7 @@
   </div>
 
   <div class="container">
+    <!-- 留言输入区 -->
     <div class="message-input">
       <textarea id="messageContent" placeholder="写下你的留言..."></textarea>
       <div class="input-footer">
@@ -223,16 +229,18 @@
       </div>
     </div>
 
+    <!-- 留言列表 -->
     <div class="message-list" id="messageList">
       <div class="empty-tip">暂无留言，快来第一条吧~</div>
     </div>
   </div>
 
   <script>
-    // 你的外网域名，已经写好
-    const API_BASE = "http://940dj94144aa.vicp.fun:3000";
+    // 👇 关键：已改为HTTPS，解决GitHub混合内容拦截
+    const API_BASE = "https://940dj94144aa.vicp.fun:3000";
     let isAdmin = false;
 
+    // DOM元素
     const loginModal = document.getElementById("loginModal");
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -256,21 +264,22 @@
           body: JSON.stringify({ username, password })
         });
         const data = await res.json();
-        if (data.success) {
+        if (data.code === 200) {
           isAdmin = true;
           loginModal.style.display = "none";
           logoutBtn.style.display = "block";
           loadMessages();
           alert("登录成功");
         } else {
-          alert("账号或密码错误");
+          alert(data.msg);
         }
       } catch (err) {
-        alert("网络错误，请检查后端服务是否启动");
+        alert("网络错误，请检查后端服务/花生壳穿透");
+        console.error(err);
       }
     });
 
-    // 退出
+    // 退出登录
     logoutBtn.addEventListener("click", () => {
       isAdmin = false;
       logoutBtn.style.display = "none";
@@ -283,46 +292,56 @@
       const content = messageContent.value.trim();
       const nickname = nicknameInput.value.trim();
       if (!content || !nickname) {
-        alert("请输入昵称和内容");
+        alert("请输入昵称和留言内容");
         return;
       }
       try {
-        await fetch(`${API_BASE}/api/message`, {
+        const res = await fetch(`${API_BASE}/api/message`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: nickname, content })
+          body: JSON.stringify({ content, nickname })
         });
-        messageContent.value = "";
-        nicknameInput.value = "";
-        loadMessages();
-        alert("留言成功");
+        const data = await res.json();
+        if (data.code === 200) {
+          messageContent.value = "";
+          nicknameInput.value = "";
+          loadMessages();
+          alert("留言成功");
+        } else {
+          alert(data.msg);
+        }
       } catch (err) {
-        alert("提交失败");
+        alert("网络错误，请检查后端服务/花生壳穿透");
+        console.error(err);
       }
     });
 
-    // 加载留言
+    // 加载留言列表
     async function loadMessages() {
       try {
         const res = await fetch(`${API_BASE}/api/messages`);
-        const messages = await res.json();
-        renderMessages(messages);
+        const data = await res.json();
+        if (data.code === 200) {
+          renderMessages(data.data);
+        }
       } catch (err) {
-        messageList.innerHTML = `<div class="empty-tip">加载失败</div>`;
+        console.error("加载留言失败", err);
+        messageList.innerHTML = `<div class="empty-tip">加载失败，请检查后端服务/花生壳穿透</div>`;
       }
     }
 
+    // 渲染留言
     function renderMessages(messages) {
       if (messages.length === 0) {
-        messageList.innerHTML = `<div class="empty-tip">暂无留言</div>`;
+        messageList.innerHTML = `<div class="empty-tip">暂无留言，快来第一条吧~</div>`;
         return;
       }
       messageList.innerHTML = messages.map(msg => `
         <div class="message-item ${isAdmin ? 'admin' : ''}">
           <div class="msg-header">
-            <span class="msg-nickname">${msg.name}</span>
+            <span class="msg-nickname">${msg.nickname}</span>
             <div>
-              <span class="msg-time">${msg.time}</span>
+              <span class="msg-time">${msg.createTime}</span>
               <button class="delete-btn" data-id="${msg.id}">删除</button>
             </div>
           </div>
@@ -330,16 +349,31 @@
         </div>
       `).join("");
 
+      // 绑定删除事件
       document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
-          if (!confirm("确定删除？")) return;
+          if (!confirm("确定删除这条留言？")) return;
           const id = btn.dataset.id;
-          await fetch(`${API_BASE}/api/message/${id}`, { method: "DELETE" });
-          loadMessages();
+          try {
+            const res = await fetch(`${API_BASE}/api/message/${id}`, {
+              method: "DELETE"
+            });
+            const data = await res.json();
+            if (data.code === 200) {
+              loadMessages();
+              alert("删除成功");
+            } else {
+              alert(data.msg);
+            }
+          } catch (err) {
+            alert("删除失败");
+            console.error(err);
+          }
         });
       });
     }
 
+    // 初始化加载
     loadMessages();
   </script>
 </body>
