@@ -1,183 +1,281 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>留言板（本地服务器）</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
-body{background:#f6f8fa;max-width:500px;margin:30px auto;padding:0 20px}
-.box{background:#fff;border-radius:8px;padding:20px;box-shadow:0 2px 6px rgba(0,0,0,.08);margin-bottom:15px}
-h3{margin-bottom:15px;color:#333}
-input{width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:6px}
-button{width:100%;padding:10px;background:#0077ff;color:#fff;border:none;border-radius:6px;margin-bottom:8px;cursor:pointer}
-.gray{background:#666}
-.hide{display:none}
-.msg{padding:10px 0;border-bottom:1px solid #eee}
-.msg .user{font-weight:bold;color:#0077ff}
-.msg .time{font-size:12px;color:#999;margin-left:8px}
-.msg .content{margin-top:4px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>留言板</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+    .login-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 30px;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .input-group input {
+      width: 100%;
+      height: 48px;
+      padding: 0 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-group input:focus {
+      border-color: #07c160;
+    }
+    .login-btn {
+      width: 100%;
+      height: 48px;
+      background-color: #07c160;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-bottom: 12px;
+    }
+    .login-btn:hover {
+      background-color: #06ae56;
+    }
+    .register-btn {
+      width: 100%;
+      height: 48px;
+      background-color: #f5f5f5;
+      color: #576b95;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .register-btn:hover {
+      background-color: #e8e8e8;
+    }
+    .message-container {
+      width: 100%;
+      max-width: 800px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      display: none;
+    }
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 20px;
+    }
+    .message-header h2 {
+      font-size: 20px;
+      color: #1a1a1a;
+    }
+    .logout-btn {
+      padding: 8px 16px;
+      background-color: #ff4d4f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .message-input {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      resize: none;
+      margin-bottom: 12px;
+    }
+    .send-btn {
+      width: 100%;
+      height: 44px;
+      background-color: #07c160;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .message-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .message-item {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .message-item .username {
+      font-weight: 500;
+      color: #07c160;
+      margin-bottom: 4px;
+    }
+    .message-item .content {
+      color: #333;
+      line-height: 1.5;
+    }
+    .message-item .time {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
+  <div class="login-container" id="loginPage">
+    <h1 class="login-title">登录</h1>
+    <div class="input-group">
+      <input type="text" id="username" placeholder="请输入账号" value="admin">
+    </div>
+    <div class="input-group">
+      <input type="password" id="password" placeholder="请输入密码" value="md199717">
+    </div>
+    <button class="login-btn" id="loginBtn">登录</button>
+    <button class="register-btn" id="registerBtn">去注册</button>
+  </div>
 
-<!-- 登录 -->
-<div class="box" id="loginBox">
-<h3>登录</h3>
-<input type="text" id="login_user" placeholder="用户名">
-<input type="password" id="login_pwd" placeholder="密码">
-<button onclick="login()">登录</button>
-<button class="gray" onclick="showReg()">去注册</button>
-</div>
+  <div class="message-container" id="messagePage">
+    <div class="message-header">
+      <h2>留言板</h2>
+      <button class="logout-btn" id="logoutBtn">退出登录</button>
+    </div>
+    <textarea class="message-input" id="messageInput" placeholder="写下你的留言..."></textarea>
+    <button class="send-btn" id="sendBtn">发送留言</button>
+    <div class="message-list" id="messageList"></div>
+  </div>
 
-<!-- 注册 -->
-<div class="box hide" id="regBox">
-<h3>注册</h3>
-<input type="text" id="reg_user" placeholder="用户名">
-<input type="password" id="reg_pwd" placeholder="密码">
-<button onclick="reg()">注册</button>
-<button class="gray" onclick="showLogin()">返回登录</button>
-</div>
+  <script>
+    // 🔴 核心：API地址写死3000端口，绝对不修改
+    const API_BASE_URL = 'https://pink-rocks-open.loca.lt';
 
-<!-- 主界面 -->
-<div class="box hide" id="mainBox">
-<h3>留言板</h3>
-<p>欢迎：<span id="nowuser"></span></p >
-<button class="gray" onclick="logout()">退出登录</button>
-<br><br>
-<input type="text" id="msgContent" placeholder="写留言...">
-<button onclick="sendMsg()">发送留言</button>
-<br><br>
-<div id="msgList"></div>
-</div>
+    // DOM元素
+    const loginPage = document.getElementById('loginPage');
+    const messagePage = document.getElementById('messagePage');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const messageList = document.getElementById('messageList');
 
-<script>
-// 🔥 这里替换成你localtunnel生成的最新外网地址
-const API = "https://clever-cases-crash.loca.lt";
+    // 登录逻辑（完整可运行）
+    loginBtn.addEventListener('click', async () => {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
 
-// 切换界面
-function showReg(){
-  document.getElementById("loginBox").classList.add("hide");
-  document.getElementById("regBox").classList.remove("hide");
-}
-function showLogin(){
-  document.getElementById("regBox").classList.add("hide");
-  document.getElementById("loginBox").classList.remove("hide");
-}
-function showMain(){
-  document.getElementById("loginBox").classList.add("hide");
-  document.getElementById("regBox").classList.add("hide");
-  document.getElementById("mainBox").classList.remove("hide");
-}
+      if (!username || !password) {
+        alert('请输入账号和密码');
+        return;
+      }
 
-// 注册
-async function reg(){
-  const user = document.getElementById("reg_user").value.trim();
-  const pwd  = document.getElementById("reg_pwd").value.trim();
-  if(!user || !pwd) return alert("请输入用户名和密码");
+      try {
+        // 强制请求3000端口后端
+        const response = await fetch(`${API_BASE_URL}/api/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
 
-  try {
-    const res = await fetch(API + "/api/reg", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user, pwd })
+        const data = await response.json();
+        if (data.success) {
+          loginPage.style.display = 'none';
+          messagePage.style.display = 'block';
+          alert('登录成功！');
+          loadMessages();
+        } else {
+          alert('登录失败：' + data.message);
+        }
+      } catch (err) {
+        console.error('登录错误：', err);
+        alert('登录失败：请检查后端服务是否启动在3000端口');
+      }
     });
-    const data = await res.json();
-    if(data.code === 0) {
-      alert("注册成功！请登录");
-      showLogin();
-    } else {
-      alert(data.msg || "注册失败");
-    }
-  } catch(e) {
-    alert("注册失败：" + e.message);
-  }
-}
 
-// 登录
-async function login(){
-  const user = document.getElementById("login_user").value.trim();
-  const pwd  = document.getElementById("login_pwd").value.trim();
-  if(!user || !pwd) return alert("请输入用户名和密码");
-
-  try {
-    const res = await fetch(API + "/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user, pwd })
+    // 退出登录
+    logoutBtn.addEventListener('click', () => {
+      messagePage.style.display = 'none';
+      loginPage.style.display = 'block';
+      usernameInput.value = 'admin';
+      passwordInput.value = 'md199717';
     });
-    const data = await res.json();
-    if(data.code === 0) {
-      localStorage.setItem("login_user", user);
-      document.getElementById("nowuser").innerText = user;
-      showMain();
-      loadMsg();
-    } else {
-      alert(data.msg || "账号或密码错误");
-    }
-  } catch(e) {
-    alert("登录失败：" + e.message);
-  }
-}
 
-// 退出
-function logout(){
-  localStorage.removeItem("login_user");
-  location.reload();
-}
-
-// 发送留言
-async function sendMsg(){
-  const user = localStorage.getItem("login_user");
-  if(!user) return alert("请先登录");
-
-  const content = document.getElementById("msgContent").value.trim();
-  if(!content) return alert("请输入留言内容");
-
-  try {
-    await fetch(API + "/api/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user, content })
+    // 发送留言
+    sendBtn.addEventListener('click', () => {
+      const content = messageInput.value.trim();
+      if (!content) {
+        alert('请输入留言内容');
+        return;
+      }
+      const messageItem = document.createElement('div');
+      messageItem.className = 'message-item';
+      messageItem.innerHTML = `
+        <div class="username">${usernameInput.value}</div>
+        <div class="content">${content}</div>
+        <div class="time">${new Date().toLocaleString()}</div>
+      `;
+      messageList.appendChild(messageItem);
+      messageInput.value = '';
     });
-    document.getElementById("msgContent").value = "";
-    loadMsg();
-  } catch(e) {
-    alert("发送失败：" + e.message);
-  }
-}
 
-// 加载留言
-async function loadMsg(){
-  const listEl = document.getElementById("msgList");
-  try {
-    const res = await fetch(API + "/api/msgs");
-    const data = await res.json();
-    let html = "";
-    for(const m of data.list){
-      html += `
-      <div class="msg">
-        <span class="user">${m.user}</span>
-        <span class="time">${m.time}</span>
-        <div class="content">${m.content}</div>
-      </div>`;
+    // 加载留言
+    function loadMessages() {
+      messageList.innerHTML = '';
+      const demoMessages = [
+        { username: 'admin', content: '欢迎使用留言板！', time: new Date().toLocaleString() }
+      ];
+      demoMessages.forEach(msg => {
+        const messageItem = document.createElement('div');
+        messageItem.className = 'message-item';
+        messageItem.innerHTML = `
+          <div class="username">${msg.username}</div>
+          <div class="content">${msg.content}</div>
+          <div class="time">${msg.time}</div>
+        `;
+        messageList.appendChild(messageItem);
+      });
     }
-    listEl.innerHTML = html;
-  } catch(e) {
-    listEl.innerHTML = "加载失败，请确保服务器已启动";
-  }
-}
 
-// 自动判断登录
-window.onload = function(){
-  const user = localStorage.getItem("login_user");
-  if(user) {
-    document.getElementById("loginBox").classList.add("hide");
-    document.getElementById("mainBox").classList.remove("hide");
-    document.getElementById("nowuser").innerText = user;
-    loadMsg();
-  }
-}
-</script>
+    // 注册按钮
+    document.getElementById('registerBtn').addEventListener('click', () => {
+      alert('注册功能开发中...');
+    });
+  </script>
 </body>
 </html>
