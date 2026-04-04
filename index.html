@@ -15,7 +15,6 @@
       background-color: #f5f5f5;
       min-height: 100vh;
     }
-    /* 微信风格顶部栏 */
     .header {
       background-color: #f7f7f7;
       border-bottom: 1px solid #e5e5e5;
@@ -32,7 +31,6 @@
       margin: 0 auto;
       padding: 15px;
     }
-    /* 登录弹窗 */
     .login-modal {
       position: fixed;
       top: 0;
@@ -87,7 +85,6 @@
     .login-btn:hover {
       background: #06ae56;
     }
-    /* 留言输入区 */
     .message-input {
       background: white;
       border-radius: 8px;
@@ -129,7 +126,6 @@
     .submit-btn:hover {
       background: #06ae56;
     }
-    /* 留言列表 */
     .message-list {
       background: white;
       border-radius: 8px;
@@ -194,16 +190,16 @@
       font-size: 12px;
       cursor: pointer;
       color: #666;
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="header">
     留言板
-    <button class="logout-btn" id="logoutBtn" style="display: none;">退出登录</button>
+    <button class="logout-btn" id="logoutBtn">退出登录</button>
   </div>
 
-  <!-- 登录弹窗 -->
   <div class="login-modal" id="loginModal">
     <div class="login-box">
       <h3>管理员登录</h3>
@@ -220,7 +216,6 @@
   </div>
 
   <div class="container">
-    <!-- 留言输入区 -->
     <div class="message-input">
       <textarea id="messageContent" placeholder="写下你的留言..."></textarea>
       <div class="input-footer">
@@ -229,18 +224,16 @@
       </div>
     </div>
 
-    <!-- 留言列表 -->
     <div class="message-list" id="messageList">
       <div class="empty-tip">暂无留言，快来第一条吧~</div>
     </div>
   </div>
 
   <script>
-    // 👇 关键：已改为HTTPS，解决GitHub混合内容拦截
-    const API_BASE = "https://940dj94144aa.vicp.fun:3000";
+    // 👇 关键：HTTPS 443端口，直接用域名，去掉:3000
+    const API_BASE = "https://940dj94144aa.vicp.fun";
     let isAdmin = false;
 
-    // DOM元素
     const loginModal = document.getElementById("loginModal");
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -248,75 +241,10 @@
     const messageList = document.getElementById("messageList");
     const messageContent = document.getElementById("messageContent");
     const nicknameInput = document.getElementById("nicknameInput");
+    const usernameInput = document.getElementById("usernameInput");
+    const passwordInput = document.getElementById("passwordInput");
 
-    // 登录
-    loginBtn.addEventListener("click", async () => {
-      const username = document.getElementById("usernameInput").value;
-      const password = document.getElementById("passwordInput").value;
-      if (!username || !password) {
-        alert("请输入账号密码");
-        return;
-      }
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (data.code === 200) {
-          isAdmin = true;
-          loginModal.style.display = "none";
-          logoutBtn.style.display = "block";
-          loadMessages();
-          alert("登录成功");
-        } else {
-          alert(data.msg);
-        }
-      } catch (err) {
-        alert("网络错误，请检查后端服务/花生壳穿透");
-        console.error(err);
-      }
-    });
-
-    // 退出登录
-    logoutBtn.addEventListener("click", () => {
-      isAdmin = false;
-      logoutBtn.style.display = "none";
-      loginModal.style.display = "flex";
-      loadMessages();
-    });
-
-    // 提交留言
-    submitBtn.addEventListener("click", async () => {
-      const content = messageContent.value.trim();
-      const nickname = nicknameInput.value.trim();
-      if (!content || !nickname) {
-        alert("请输入昵称和留言内容");
-        return;
-      }
-      try {
-        const res = await fetch(`${API_BASE}/api/message`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content, nickname })
-        });
-        const data = await res.json();
-        if (data.code === 200) {
-          messageContent.value = "";
-          nicknameInput.value = "";
-          loadMessages();
-          alert("留言成功");
-        } else {
-          alert(data.msg);
-        }
-      } catch (err) {
-        alert("网络错误，请检查后端服务/花生壳穿透");
-        console.error(err);
-      }
-    });
-
-    // 加载留言列表
+    // 加载留言
     async function loadMessages() {
       try {
         const res = await fetch(`${API_BASE}/api/messages`);
@@ -326,7 +254,7 @@
         }
       } catch (err) {
         console.error("加载留言失败", err);
-        messageList.innerHTML = `<div class="empty-tip">加载失败，请检查后端服务/花生壳穿透</div>`;
+        messageList.innerHTML = `<div class="empty-tip">加载失败，请检查网络</div>`;
       }
     }
 
@@ -340,10 +268,9 @@
         <div class="message-item ${isAdmin ? 'admin' : ''}">
           <div class="msg-header">
             <span class="msg-nickname">${msg.nickname}</span>
-            <div>
-              <span class="msg-time">${msg.createTime}</span>
+            <span class="msg-time">${msg.createTime}
               <button class="delete-btn" data-id="${msg.id}">删除</button>
-            </div>
+            </span>
           </div>
           <div class="msg-content">${msg.content}</div>
         </div>
@@ -352,7 +279,6 @@
       // 绑定删除事件
       document.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
-          if (!confirm("确定删除这条留言？")) return;
           const id = btn.dataset.id;
           try {
             const res = await fetch(`${API_BASE}/api/message/${id}`, {
@@ -373,7 +299,78 @@
       });
     }
 
-    // 初始化加载
+    // 登录
+    loginBtn.addEventListener("click", async () => {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!username || !password) {
+        alert("请输入用户名和密码");
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/api/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.code === 200) {
+          isAdmin = true;
+          loginModal.style.display = "none";
+          logoutBtn.style.display = "block";
+          loadMessages();
+          alert("登录成功");
+        } else {
+          alert(data.msg);
+        }
+      } catch (err) {
+        alert("网络错误，请检查后端服务");
+        console.error(err);
+      }
+    });
+
+    // 退出登录
+    logoutBtn.addEventListener("click", () => {
+      isAdmin = false;
+      loginModal.style.display = "flex";
+      logoutBtn.style.display = "none";
+      loadMessages();
+    });
+
+    // 提交留言
+    submitBtn.addEventListener("click", async () => {
+      const content = messageContent.value.trim();
+      const nickname = nicknameInput.value.trim();
+      if (!content || !nickname) {
+        alert("请输入留言内容和昵称");
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/api/message`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ content, nickname })
+        });
+        const data = await res.json();
+        if (data.code === 200) {
+          messageContent.value = "";
+          nicknameInput.value = "";
+          loadMessages();
+          alert("留言成功");
+        } else {
+          alert(data.msg);
+        }
+      } catch (err) {
+        alert("网络错误，请检查后端服务");
+        console.error(err);
+      }
+    });
+
+    // 初始化
     loadMessages();
   </script>
 </body>
