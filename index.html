@@ -9,273 +9,338 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Microsoft Yahei", sans-serif;
     }
     body {
-      background-color: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background-color: #f5f5f5;
       min-height: 100vh;
     }
-    .login-container {
-      width: 100%;
-      max-width: 400px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-      padding: 30px;
-    }
-    .login-title {
+    .header {
+      background-color: #f7f7f7;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 12px 15px;
       text-align: center;
-      font-size: 24px;
+      font-size: 18px;
       font-weight: 500;
-      color: #1a1a1a;
-      margin-bottom: 30px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .input-group {
-      margin-bottom: 20px;
+    .container {
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 15px;
     }
-    .input-group input {
+    .login-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: 48px;
-      padding: 0 16px;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
-      font-size: 16px;
-      outline: none;
-      transition: border-color 0.2s;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
     }
-    .input-group input:focus {
-      border-color: #07c160;
+    .login-box {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      width: 90%;
+      max-width: 350px;
+    }
+    .login-box h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .form-item {
+      margin-bottom: 15px;
+    }
+    .form-item label {
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
+      font-size: 14px;
+    }
+    .form-item input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      font-size: 14px;
     }
     .login-btn {
       width: 100%;
-      height: 48px;
-      background-color: #07c160;
-      color: #fff;
+      padding: 10px;
+      background: #07c160;
+      color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 17px;
-      font-weight: 500;
+      border-radius: 4px;
+      font-size: 15px;
       cursor: pointer;
-      transition: background-color 0.2s;
-      margin-bottom: 12px;
+      margin-top: 10px;
     }
     .login-btn:hover {
-      background-color: #06ae56;
+      background: #06ae56;
     }
-    .register-btn {
-      width: 100%;
-      height: 48px;
-      background-color: #f5f5f5;
-      color: #576b95;
-      border: none;
+    .message-input {
+      background: white;
       border-radius: 8px;
-      font-size: 17px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .register-btn:hover {
-      background-color: #e8e8e8;
-    }
-    .message-container {
+    .message-input textarea {
       width: 100%;
-      max-width: 800px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-      padding: 20px;
-      display: none;
+      min-height: 80px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      padding: 10px;
+      font-size: 14px;
+      resize: vertical;
+      margin-bottom: 10px;
     }
-    .message-header {
+    .input-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #f0f0f0;
-      margin-bottom: 20px;
     }
-    .message-header h2 {
-      font-size: 20px;
-      color: #1a1a1a;
-    }
-    .logout-btn {
-      padding: 8px 16px;
-      background-color: #ff4d4f;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .message-input {
-      width: 100%;
-      height: 100px;
-      padding: 12px;
+    .nickname-input {
+      width: 45%;
+      padding: 8px;
       border: 1px solid #e5e5e5;
-      border-radius: 8px;
-      font-size: 15px;
-      outline: none;
-      resize: none;
-      margin-bottom: 12px;
+      border-radius: 4px;
+      font-size: 14px;
     }
-    .send-btn {
-      width: 100%;
-      height: 44px;
-      background-color: #07c160;
-      color: #fff;
+    .submit-btn {
+      padding: 8px 20px;
+      background: #07c160;
+      color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 4px;
       cursor: pointer;
-      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .submit-btn:hover {
+      background: #06ae56;
     }
     .message-list {
-      max-height: 400px;
-      overflow-y: auto;
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .message-item {
-      padding: 12px;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f5f5f5;
+      padding: 15px 0;
     }
-    .message-item .username {
+    .message-item:last-child {
+      border-bottom: none;
+    }
+    .msg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .msg-nickname {
       font-weight: 500;
-      color: #07c160;
-      margin-bottom: 4px;
-    }
-    .message-item .content {
       color: #333;
-      line-height: 1.5;
+      font-size: 15px;
     }
-    .message-item .time {
-      font-size: 12px;
+    .msg-time {
       color: #999;
-      margin-top: 4px;
+      font-size: 12px;
+    }
+    .msg-content {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .delete-btn {
+      background: #ff4d4f;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: 10px;
+      display: none;
+    }
+    .admin .delete-btn {
+      display: inline-block;
+    }
+    .empty-tip {
+      text-align: center;
+      color: #999;
+      padding: 30px 0;
+      font-size: 14px;
+    }
+    .logout-btn {
+      position: absolute;
+      right: 15px;
+      top: 12px;
+      background: #f5f5f5;
+      border: 1px solid #e5e5e5;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <div class="login-container" id="loginPage">
-    <h1 class="login-title">登录</h1>
-    <div class="input-group">
-      <input type="text" id="username" placeholder="请输入账号" value="admin">
-    </div>
-    <div class="input-group">
-      <input type="password" id="password" placeholder="请输入密码" value="md199717">
-    </div>
-    <button class="login-btn" id="loginBtn">登录</button>
-    <button class="register-btn" id="registerBtn">去注册</button>
+  <div class="header">
+    留言板
+    <button class="logout-btn" id="logoutBtn" style="display: none;">退出登录</button>
   </div>
 
-  <div class="message-container" id="messagePage">
-    <div class="message-header">
-      <h2>留言板</h2>
-      <button class="logout-btn" id="logoutBtn">退出登录</button>
+  <div class="login-modal" id="loginModal">
+    <div class="login-box">
+      <h3>管理员登录</h3>
+      <div class="form-item">
+        <label>用户名</label>
+        <input type="text" id="usernameInput" placeholder="请输入用户名">
+      </div>
+      <div class="form-item">
+        <label>密码</label>
+        <input type="password" id="passwordInput" placeholder="请输入密码">
+      </div>
+      <button class="login-btn" id="loginBtn">登录</button>
     </div>
-    <textarea class="message-input" id="messageInput" placeholder="写下你的留言..."></textarea>
-    <button class="send-btn" id="sendBtn">发送留言</button>
-    <div class="message-list" id="messageList"></div>
+  </div>
+
+  <div class="container">
+    <div class="message-input">
+      <textarea id="messageContent" placeholder="写下你的留言..."></textarea>
+      <div class="input-footer">
+        <input type="text" id="nicknameInput" class="nickname-input" placeholder="昵称">
+        <button class="submit-btn" id="submitBtn">提交留言</button>
+      </div>
+    </div>
+
+    <div class="message-list" id="messageList">
+      <div class="empty-tip">暂无留言，快来第一条吧~</div>
+    </div>
   </div>
 
   <script>
-    // 🔴 核心：API地址写死3000端口，绝对不修改
-    const API_BASE_URL = 'https://old-flies-clean.loca.lt';
+    // 你的外网域名，已经写好
+    const API_BASE = "http://940dj94144aa.vicp.fun:3000";
+    let isAdmin = false;
 
-    // DOM元素
-    const loginPage = document.getElementById('loginPage');
-    const messagePage = document.getElementById('messagePage');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const messageInput = document.getElementById('messageInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const messageList = document.getElementById('messageList');
+    const loginModal = document.getElementById("loginModal");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const messageList = document.getElementById("messageList");
+    const messageContent = document.getElementById("messageContent");
+    const nicknameInput = document.getElementById("nicknameInput");
 
-    // 登录逻辑（完整可运行）
-    loginBtn.addEventListener('click', async () => {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-
+    // 登录
+    loginBtn.addEventListener("click", async () => {
+      const username = document.getElementById("usernameInput").value;
+      const password = document.getElementById("passwordInput").value;
       if (!username || !password) {
-        alert('请输入账号和密码');
+        alert("请输入账号密码");
         return;
       }
-
       try {
-        // 强制请求3000端口后端
-        const response = await fetch(`${API_BASE_URL}/api/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+        const res = await fetch(`${API_BASE}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })
         });
-
-        const data = await response.json();
+        const data = await res.json();
         if (data.success) {
-          loginPage.style.display = 'none';
-          messagePage.style.display = 'block';
-          alert('登录成功！');
+          isAdmin = true;
+          loginModal.style.display = "none";
+          logoutBtn.style.display = "block";
           loadMessages();
+          alert("登录成功");
         } else {
-          alert('登录失败：' + data.message);
+          alert("账号或密码错误");
         }
       } catch (err) {
-        console.error('登录错误：', err);
-        alert('登录失败：请检查后端服务是否启动在3000端口');
+        alert("网络错误，请检查后端服务是否启动");
       }
     });
 
-    // 退出登录
-    logoutBtn.addEventListener('click', () => {
-      messagePage.style.display = 'none';
-      loginPage.style.display = 'block';
-      usernameInput.value = 'admin';
-      passwordInput.value = 'md199717';
+    // 退出
+    logoutBtn.addEventListener("click", () => {
+      isAdmin = false;
+      logoutBtn.style.display = "none";
+      loginModal.style.display = "flex";
+      loadMessages();
     });
 
-    // 发送留言
-    sendBtn.addEventListener('click', () => {
-      const content = messageInput.value.trim();
-      if (!content) {
-        alert('请输入留言内容');
+    // 提交留言
+    submitBtn.addEventListener("click", async () => {
+      const content = messageContent.value.trim();
+      const nickname = nicknameInput.value.trim();
+      if (!content || !nickname) {
+        alert("请输入昵称和内容");
         return;
       }
-      const messageItem = document.createElement('div');
-      messageItem.className = 'message-item';
-      messageItem.innerHTML = `
-        <div class="username">${usernameInput.value}</div>
-        <div class="content">${content}</div>
-        <div class="time">${new Date().toLocaleString()}</div>
-      `;
-      messageList.appendChild(messageItem);
-      messageInput.value = '';
+      try {
+        await fetch(`${API_BASE}/api/message`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: nickname, content })
+        });
+        messageContent.value = "";
+        nicknameInput.value = "";
+        loadMessages();
+        alert("留言成功");
+      } catch (err) {
+        alert("提交失败");
+      }
     });
 
     // 加载留言
-    function loadMessages() {
-      messageList.innerHTML = '';
-      const demoMessages = [
-        { username: 'admin', content: '欢迎使用留言板！', time: new Date().toLocaleString() }
-      ];
-      demoMessages.forEach(msg => {
-        const messageItem = document.createElement('div');
-        messageItem.className = 'message-item';
-        messageItem.innerHTML = `
-          <div class="username">${msg.username}</div>
-          <div class="content">${msg.content}</div>
-          <div class="time">${msg.time}</div>
-        `;
-        messageList.appendChild(messageItem);
+    async function loadMessages() {
+      try {
+        const res = await fetch(`${API_BASE}/api/messages`);
+        const messages = await res.json();
+        renderMessages(messages);
+      } catch (err) {
+        messageList.innerHTML = `<div class="empty-tip">加载失败</div>`;
+      }
+    }
+
+    function renderMessages(messages) {
+      if (messages.length === 0) {
+        messageList.innerHTML = `<div class="empty-tip">暂无留言</div>`;
+        return;
+      }
+      messageList.innerHTML = messages.map(msg => `
+        <div class="message-item ${isAdmin ? 'admin' : ''}">
+          <div class="msg-header">
+            <span class="msg-nickname">${msg.name}</span>
+            <div>
+              <span class="msg-time">${msg.time}</span>
+              <button class="delete-btn" data-id="${msg.id}">删除</button>
+            </div>
+          </div>
+          <div class="msg-content">${msg.content}</div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("确定删除？")) return;
+          const id = btn.dataset.id;
+          await fetch(`${API_BASE}/api/message/${id}`, { method: "DELETE" });
+          loadMessages();
+        });
       });
     }
 
-    // 注册按钮
-    document.getElementById('registerBtn').addEventListener('click', () => {
-      alert('注册功能开发中...');
-    });
+    loadMessages();
   </script>
 </body>
 </html>
