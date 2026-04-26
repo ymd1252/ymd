@@ -1,0 +1,5 @@
+{
+  "name": "memory-sync",
+  "description": "对话记忆同步 - 读取上次对话历史，保持跨会话上下文",
+  "version": "2.0.0"
+}

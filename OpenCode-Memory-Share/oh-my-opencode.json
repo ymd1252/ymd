@@ -1,0 +1,9 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-openagent.schema.json",
+  "agents": {
+    "sisyphus": {
+      "model": "opencode/big-pickle",
+      "skills": ["personal", "memory-sync"]
+    }
+  }
+}

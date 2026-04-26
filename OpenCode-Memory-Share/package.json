@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@opencode-ai/plugin": "1.14.21",
+    "better-sqlite3": "^12.9.0",
+    "docx": "^9.6.1",
+    "oh-my-opencode": "^3.17.4",
+    "sql.js": "^1.14.1"
+  }
+}
