@@ -6,13 +6,13 @@ Python sqlite3 原生支持 WAL 模式
 用法: python db-query.py <last_synced_time>
 输出: JSON 数组，每条消息含 id/time/role/content
 
-本地不做任何过滤，所有 user/assistant 消息直接输出，由服务器去重和清理
+本机不做任何过滤，所有 user/assistant 消息直接输出，由服务器去重和清理
 """
 import sqlite3
 import json
 import sys
 
-DB_PATH = r'C:\Users\12527\.local\share\opencode\opencode.db'
+DB_PATH = r'C:\Users\admin\.local\share\opencode\opencode.db'
 
 def query_messages(last_synced_time):
     conn = sqlite3.connect(DB_PATH)

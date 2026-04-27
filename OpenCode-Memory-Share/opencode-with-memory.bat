@@ -1,5 +1,5 @@
 @echo off
-set OPENCODE_DIR=C:\Users\12527\.config\opencode
+set OPENCODE_DIR=C:\Users\admin\.config\opencode
 
 REM Clean old session flag
 del /q "%OPENCODE_DIR%\.memory-session-active" 2>nul

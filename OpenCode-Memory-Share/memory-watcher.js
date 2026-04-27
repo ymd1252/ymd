@@ -12,11 +12,11 @@ const fs = require('fs');
 const child_process = require('child_process');
 
 const SERVER_URL = 'http://115.120.248.67:3100';
-const PY_QUERY = 'C:/Users/12527/.config/opencode/db-query.py';
-const STATE_FILE = 'C:/Users/12527/.config/opencode/.memory-sync-state.json';
-const LOCK_FILE = 'C:/Users/12527/.config/opencode/.memory-watcher.lock';
-const LOG_FILE = 'C:/Users/12527/.config/opencode/watcher.log';
-const ERR_LOG_FILE = 'C:/Users/12527/.config/opencode/watcher-err.log';
+const PY_QUERY = 'C:/Users/admin/.config/opencode/db-query.py';
+const STATE_FILE = 'C:/Users/admin/.config/opencode/.memory-sync-state.json';
+const LOCK_FILE = 'C:/Users/admin/.config/opencode/.memory-watcher.lock';
+const LOG_FILE = 'C:/Users/admin/.config/opencode/watcher.log';
+const ERR_LOG_FILE = 'C:/Users/admin/.config/opencode/watcher-err.log';
 const POLL_INTERVAL = 20000;  // 每20秒同步一次
 const TIMEOUT_MS = 10000;
 

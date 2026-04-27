@@ -14,8 +14,8 @@ const fs = require('fs');
 const readline = require('readline');
 
 const SERVER_URL = 'http://115.120.248.67:3100';
-const CONTEXT_FILE = 'C:\\Users\\12527\\.config\\opencode\\.memory-context.md';
-const HISTORY_FILE = 'C:\\Users\\12527\\.config\\opencode\\.memory-history.txt';
+const CONTEXT_FILE = 'C:\\Users\\admin\\.config\\opencode\\.memory-context.md';
+const HISTORY_FILE = 'C:\\Users\\admin\\.config\\opencode\\.memory-history.txt';
 
 let initialized = false;
 
